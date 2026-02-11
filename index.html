@@ -169,6 +169,9 @@ button {
 </head>
 
 <body>
+    <audio id="heartbeatAudio" src="heartbeat.mp3" loop></audio>
+    <audio id="noAudio" src="no.mp3"></audio>
+    <audio id="yesAudio" src="yes.mp3"></audio>
 
 <div id="youtubePlayer"></div>
 
@@ -204,133 +207,140 @@ button {
   </p>
 </div>
 
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
-let player;
-let musicStarted = false;
-
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtubePlayer', {
-    height: '0',
-    width: '0',
-    videoId: '_Z3ra0CxCE0',
-    playerVars: {
-      autoplay: 0,
-      controls: 0,
-      loop: 1,
-      playlist: '_Z3ra0CxCE0'
+    const openingScreen = document.getElementById("openingScreen");
+    const mainCard = document.getElementById("mainCard");
+    const openingText = document.getElementById("openingText");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    
+    const heartbeatAudio = document.getElementById("heartbeatAudio");
+    const noAudio = document.getElementById("noAudio");
+    const yesAudio = document.getElementById("yesAudio");
+    
+    let heartbeatStarted = false;
+    let noPlaying = false;
+    let noLocked = false;
+    
+    /* OPENING SCREEN */
+    openingScreen.addEventListener("click", () => {
+    
+      if (!heartbeatStarted) {
+        heartbeatAudio.currentTime = 0;
+        heartbeatAudio.play();
+        heartbeatStarted = true;
+        openingText.textContent = "Okay… one more click 💕";
+        return;
+      }
+    
+      openingScreen.style.display = "none";
+      mainCard.style.display = "block";
+    });
+    
+    /* PROXIMITY SOUND */
+    function checkProximity(x, y) {
+    
+      if (!document.body.contains(noBtn)) return;
+    
+      const noRect = noBtn.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
+    
+      const noDistance = Math.hypot(
+        x - (noRect.left + noRect.width / 2),
+        y - (noRect.top + noRect.height / 2)
+      );
+    
+      const yesDistance = Math.hypot(
+        x - (yesRect.left + yesRect.width / 2),
+        y - (yesRect.top + yesRect.height / 2)
+      );
+    
+      if (yesDistance < noDistance) {
+        if (noPlaying) {
+          noAudio.pause();
+          noAudio.currentTime = 0;
+          noPlaying = false;
+        }
+        return;
+      }
+    
+      if (noDistance < 100) {
+        if (!noPlaying) {
+          noAudio.currentTime = 0;
+          noAudio.play();
+          noPlaying = true;
+        }
+      } else {
+        if (noPlaying) {
+          noAudio.pause();
+          noAudio.currentTime = 0;
+          noPlaying = false;
+        }
+      }
     }
-  });
-}
-
-const openingScreen = document.getElementById("openingScreen");
-const mainCard = document.getElementById("mainCard");
-const openingText = document.getElementById("openingText");
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-
-const heartbeatAudio = new Audio('heartbeat.mp3');
-heartbeatAudio.loop = true;
-
-const noAudio = new Audio('no.mp3');
-
-let heartbeatStarted = false;
-let noPlaying = false;
-
-/* OPENING SCREEN */
-openingScreen.addEventListener("click", () => {
-
-  if (!heartbeatStarted) {
-    heartbeatAudio.currentTime = 0;
-    heartbeatAudio.play().catch(()=>{});
-    heartbeatStarted = true;
-    openingText.textContent = "Okay… one more click 💕";
-    return;
-  }
-
-  openingScreen.style.display = "none";
-  mainCard.style.display = "block";
-
-  if (!musicStarted && player) {
-    player.playVideo();
-    musicStarted = true;
-  }
-});
-
-/* PROXIMITY */
-function checkProximity(x, y) {
-
-  if (!document.body.contains(noBtn)) return;
-
-  const noRect = noBtn.getBoundingClientRect();
-  const yesRect = yesBtn.getBoundingClientRect();
-
-  const noDistance = Math.hypot(
-    x - (noRect.left + noRect.width / 2),
-    y - (noRect.top + noRect.height / 2)
-  );
-
-  const yesDistance = Math.hypot(
-    x - (yesRect.left + yesRect.width / 2),
-    y - (yesRect.top + yesRect.height / 2)
-  );
-
-  if (yesDistance < noDistance) {
-    if (noPlaying) {
-      noAudio.pause();
-      noAudio.currentTime = 0;
-      noPlaying = false;
+    
+    document.addEventListener("mousemove", (e) => {
+      checkProximity(e.clientX, e.clientY);
+    });
+    
+    document.addEventListener("touchmove", (e) => {
+      const touch = e.touches[0];
+      checkProximity(touch.clientX, touch.clientY);
+    });
+    
+    /* MOVE NO BUTTON */
+    function moveNo() {
+    
+      const container = document.getElementById("mainCard");
+      const containerRect = container.getBoundingClientRect();
+    
+      if (!noLocked) {
+        const rect = noBtn.getBoundingClientRect();
+        noBtn.style.width = rect.width + "px";
+        noBtn.style.height = rect.height + "px";
+        noLocked = true;
+      }
+    
+      noBtn.style.position = "absolute";
+      noBtn.style.right = "auto";
+    
+      const rect = noBtn.getBoundingClientRect();
+    
+      const maxX = containerRect.width - rect.width - 10;
+      const maxY = containerRect.height - rect.height - 10;
+    
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+    
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
     }
-    return;
-  }
-
-  if (noDistance < 100) {
-    if (!noPlaying) {
-      noAudio.currentTime = 0;
-      noAudio.play().catch(()=>{});
-      noPlaying = true;
-    }
-  } else {
-    if (noPlaying) {
-      noAudio.pause();
-      noAudio.currentTime = 0;
-      noPlaying = false;
-    }
-  }
-}
-
-document.addEventListener("mousemove", (e) => {
-  checkProximity(e.clientX, e.clientY);
-});
-
-document.addEventListener("touchmove", (e) => {
-  const touch = e.touches[0];
-  checkProximity(touch.clientX, touch.clientY);
-});
-
-/* YES CLICK */
-yesBtn.addEventListener("click", () => {
-
-  heartbeatAudio.pause();
-  heartbeatAudio.currentTime = 0;
-
-  if (noPlaying) {
-    noAudio.pause();
-    noAudio.currentTime = 0;
-    noPlaying = false;
-  }
-
-  if (noBtn) noBtn.remove();
-
-  const yesAudio = new Audio('yes.mp3');
-  yesAudio.play().catch(()=>{});
-
-  mainCard.style.display = "none";
-  document.getElementById("loveScreen").style.display = "flex";
-});
-</script>
-
+    
+    noBtn.addEventListener("mouseover", moveNo);
+    noBtn.addEventListener("touchstart", moveNo);
+    
+    /* YES CLICK */
+    yesBtn.addEventListener("click", () => {
+    
+      heartbeatAudio.pause();
+      heartbeatAudio.currentTime = 0;
+    
+      if (noPlaying) {
+        noAudio.pause();
+        noAudio.currentTime = 0;
+        noPlaying = false;
+      }
+    
+      if (noBtn) noBtn.remove();
+    
+      yesAudio.currentTime = 0;
+      yesAudio.play();
+    
+      mainCard.style.display = "none";
+      document.getElementById("loveScreen").style.display = "flex";
+    });
+    </script>
+    
 
 
 
