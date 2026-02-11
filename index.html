@@ -233,31 +233,31 @@ const noBtn = document.getElementById("noBtn");
 
 const heartbeatAudio = new Audio('heartbeat.mp3');
 heartbeatAudio.loop = true;
+heartbeatAudio.preload = "auto";
 
 const noAudio = new Audio('no.mp3');
+noAudio.preload = "auto";
 
 let heartbeatStarted = false;
-let lastNoPlay = 0;
+let noPlaying = false;
+let noLockedSize = false;
 
-/* Unlock audio safely */
+/* Unlock audio once */
 function unlockAudio() {
   if (!audioUnlocked) {
-    const temp = new Audio('yes.mp3');
-    temp.volume = 0;
-    temp.play().then(() => {
-      temp.pause();
-      temp.currentTime = 0;
-    }).catch(()=>{});
+    const silent = new Audio();
+    silent.play().catch(()=>{});
     audioUnlocked = true;
   }
 }
 
-/* Opening Screen */
+/* Opening screen */
 openingScreen.addEventListener("click", () => {
 
   unlockAudio();
 
   if (!heartbeatStarted) {
+    heartbeatAudio.currentTime = 0;
     heartbeatAudio.play().catch(()=>{});
     heartbeatStarted = true;
     openingText.textContent = "Okay… one more click 💕";
@@ -273,7 +273,7 @@ openingScreen.addEventListener("click", () => {
   }
 });
 
-/* PROXIMITY LOGIC */
+/* PROXIMITY CHECK */
 function checkProximity(x, y) {
 
   if (!document.body.contains(noBtn)) return;
@@ -291,22 +291,29 @@ function checkProximity(x, y) {
     y - (yesRect.top + yesRect.height / 2)
   );
 
-  // If closer to YES than NO → stop NO sound
+  // If closer to YES → stop NO sound
   if (yesDistance < noDistance) {
-    noAudio.pause();
-    noAudio.currentTime = 0;
+    if (noPlaying) {
+      noAudio.pause();
+      noAudio.currentTime = 0;
+      noPlaying = false;
+    }
     return;
   }
 
   // If near NO → play sound
   if (noDistance < 100) {
-    if (Date.now() - lastNoPlay < 400) return;
-    lastNoPlay = Date.now();
-    noAudio.currentTime = 0;
-    noAudio.play().catch(()=>{});
+    if (!noPlaying) {
+      noAudio.currentTime = 0;
+      noAudio.play().catch(()=>{});
+      noPlaying = true;
+    }
   } else {
-    noAudio.pause();
-    noAudio.currentTime = 0;
+    if (noPlaying) {
+      noAudio.pause();
+      noAudio.currentTime = 0;
+      noPlaying = false;
+    }
   }
 }
 
@@ -320,11 +327,11 @@ document.addEventListener("touchmove", (e) => {
   const touch = e.touches[0];
   checkProximity(touch.clientX, touch.clientY);
 });
-let noLockedSize = false;
 
+/* Runaway NO */
 function moveNo() {
 
-  // Lock size ONCE so it never changes
+  // Lock size once to prevent growing
   if (!noLockedSize) {
     const rect = noBtn.getBoundingClientRect();
     noBtn.style.width = rect.width + "px";
@@ -332,12 +339,13 @@ function moveNo() {
     noLockedSize = true;
   }
 
+  const container = document.getElementById("mainCard");
+  const containerRect = container.getBoundingClientRect();
   const rect = noBtn.getBoundingClientRect();
 
   noBtn.style.position = "absolute";
-
-  const container = document.getElementById("mainCard");
-  const containerRect = container.getBoundingClientRect();
+  noBtn.style.right = "auto"; // IMPORTANT
+  noBtn.style.zIndex = "5";
 
   const padding = 10;
 
@@ -364,13 +372,16 @@ yesBtn.addEventListener("click", () => {
   heartbeatAudio.currentTime = 0;
 
   // Stop NO sound
-  noAudio.pause();
-  noAudio.currentTime = 0;
+  if (noPlaying) {
+    noAudio.pause();
+    noAudio.currentTime = 0;
+    noPlaying = false;
+  }
 
   // Remove NO button
   if (noBtn) noBtn.remove();
 
-  // Play YES sound
+  // Play YES sound ONLY here
   const yesAudio = new Audio('yes.mp3');
   yesAudio.play().catch(()=>{});
 
@@ -392,6 +403,7 @@ yesBtn.addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
