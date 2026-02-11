@@ -11,110 +11,153 @@
 * { box-sizing: border-box; }
 
 body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #ff9ecf, #ffc7e3, #ffe4f2);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    text-align: center;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff9ecf, #ffc7e3, #ffe4f2);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  text-align: center;
 }
 
 #youtubePlayer {
-    position: absolute;
-    width: 0;
-    height: 0;
-    opacity: 0;
-    pointer-events: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .container {
-    background: rgba(255,255,255,0.35);
-    padding: 45px;
-    border-radius: 30px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 20px 50px rgba(255,105,180,0.3);
-    color: #c2185b;
-    max-width: 420px;
-    position: relative;
+  background: rgba(255,255,255,0.35);
+  padding: 45px;
+  border-radius: 30px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(255,105,180,0.3);
+  color: #c2185b;
+  max-width: 440px;
+  position: relative;
 }
 
 h1 { margin: 0 0 10px; font-size: 2.2rem; }
 
 .subtitle {
-    font-size: 0.95rem;
-    opacity: 0.85;
-    margin-bottom: 20px;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin-bottom: 20px;
 }
 
 .question {
-    font-size: 1.15rem;
-    margin-bottom: 25px;
+  font-size: 1.15rem;
+  margin-bottom: 25px;
+  line-height: 1.4;
 }
 
 button {
-    padding: 12px 28px;
-    font-size: 16px;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    margin: 8px;
+  padding: 12px 28px;
+  font-size: 16px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin: 8px;
 }
 
 .buttons {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    min-height: 44px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
 }
 
 #yesBtn {
-    background: white;
-    color: #ff4da6;
-    font-weight: 600;
+  background: white;
+  color: #ff4da6;
+  font-weight: 600;
 }
 
 #noBtn {
-    background: #ff4da6;
-    color: white;
-    position: absolute;
-    right: 0;
+  background: #ff4da6;
+  color: white;
+  position: absolute;
+  right: 0;
 }
 
+/* YES screen */
 #loveScreen {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #ff4da6, #ff85c1);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: white;
-    padding: 20px;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #ff4da6, #ff85c1);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  padding: 22px;
+  gap: 14px;
 }
 
+#loveScreen h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+#loveScreen p {
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+/* Your image styling */
+.photoWrap {
+  width: min(72vw, 320px);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+  border: 2px solid rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.12);
+}
+
+.photoWrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Opening Screen */
 #openingScreen {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #ff9ecf, #ffc7e3, #ffe4f2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: #c2185b;
-    z-index: 1000;
-    cursor: pointer;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #ff9ecf, #ffc7e3, #ffe4f2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #c2185b;
+  z-index: 1000;
+  cursor: pointer;
+  padding: 18px;
+}
+
+#openingScreen h2 {
+  font-size: 2.5rem;
+  margin: 0 0 12px;
+}
+
+#openingScreen p {
+  margin: 0;
+  opacity: 0.9;
 }
 
 #mainCard { display: none; }
 
 @keyframes floatUp {
-    from { transform: translateY(100vh); opacity: 1; }
-    to { transform: translateY(-10vh); opacity: 0; }
+  from { transform: translateY(100vh); opacity: 1; }
+  to { transform: translateY(-10vh); opacity: 0; }
 }
 </style>
 </head>
@@ -124,27 +167,35 @@ button {
 <div id="youtubePlayer"></div>
 
 <div id="openingScreen">
-    <h2>Hi Mars 💗</h2>
-    <p id="openingText">I made this for you… click to see it 💌</p>
+  <h2>Hi Mars 💗</h2>
+  <p id="openingText">I made this for you… click to start 💌</p>
 </div>
 
 <div class="container" id="mainCard">
-    <h1>Mars 💕</h1>
-    <div class="question">
-        You make things brighter without even trying.<br><br>
+  <h1>Mars 💕</h1>
+  <div class="question">
+    You make things brighter without even trying.<br><br>
         So… will you be my Valentine? 💖
-    </div>
-    <div class="buttons">
-        <button id="yesBtn">Yes 💖</button>
-        <button id="noBtn">No 😢</button>
-    </div>
+  </div>
+
+  <div class="buttons">
+    <button id="yesBtn">Yes 💖</button>
+    <button id="noBtn">No 😢</button>
+  </div>
 </div>
 
 <div id="loveScreen">
-    <h2>💗 You said yes 💗</h2>
-    <p>
-        I can’t wait to spend many more Valentine’s with you. 💞
-    </p>
+  <h2>💗 I love you 💗</h2>
+
+  <!-- ✅ Your uploaded photo appears here -->
+  <div class="photoWrap">
+    <!-- IMPORTANT: Put IMG_7849.jpg in the same GitHub repo folder as index.html -->
+    <img src="baby.jpg" alt="baby photo">
+  </div>
+
+  <p>
+    I can’t wait for more Valentine’s together. 💞
+  </p>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -152,120 +203,149 @@ button {
 <script>
 let player;
 let musicStarted = false;
+let audioUnlocked = false;
 
+/* YouTube */
 function onYouTubeIframeAPIReady() {
-    player = new YT.Player('youtubePlayer', {
-        height:'0',
-        width:'0',
-        videoId:'_Z3ra0CxCE0',
-        playerVars:{
-            autoplay:0,
-            controls:0,
-            loop:1,
-            playlist:'_Z3ra0CxCE0'
-        }
-    });
+  player = new YT.Player('youtubePlayer', {
+    height: '0',
+    width: '0',
+    videoId: '_Z3ra0CxCE0',
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      loop: 1,
+      playlist: '_Z3ra0CxCE0'
+    }
+  });
 }
 
 const openingScreen = document.getElementById("openingScreen");
 const mainCard = document.getElementById("mainCard");
 const openingText = document.getElementById("openingText");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
 
 const heartbeatAudio = new Audio('heartbeat.mp3');
 heartbeatAudio.loop = true;
+
+const noAudio = new Audio('no.mp3');
+
 let heartbeatStarted = false;
+let lastNo = 0;
 
-openingScreen.addEventListener("click",()=>{
-    if (!heartbeatStarted) {
-        heartbeatAudio.play().catch(()=>{});
-        heartbeatStarted = true;
-        openingText.textContent = "Okay… ready? 💕";
-        return;
-    }
-    openingScreen.style.display="none";
-    mainCard.style.display="block";
-    if(!musicStarted && player){
-        player.playVideo();
-        musicStarted=true;
-    }
-});
-
-const noAudio=new Audio('no.mp3');
-let lastNo=0;
-
-function playNo(){
-    if(Date.now()-lastNo<400) return;
-    lastNo=Date.now();
-    noAudio.currentTime=0;
-    noAudio.play();
+/* Unlock audio safely */
+function unlockAudio() {
+  if (!audioUnlocked) {
+    const temp = new Audio();
+    temp.play().catch(()=>{});
+    audioUnlocked = true;
+  }
 }
 
-function stopNo(){
-    noAudio.pause();
-    noAudio.currentTime=0;
+/* Opening click */
+openingScreen.addEventListener("click", () => {
+
+  unlockAudio();
+
+  if (!heartbeatStarted) {
+    heartbeatAudio.play().catch(()=>{});
+    heartbeatStarted = true;
+    openingText.textContent = "Okay… one more click 💕";
+    return;
+  }
+
+  openingScreen.style.display = "none";
+  mainCard.style.display = "block";
+
+  if (!musicStarted && player) {
+    player.playVideo();
+    musicStarted = true;
+  }
+});
+
+/* NO sound proximity */
+document.addEventListener("mousemove", (e) => {
+  if (!document.body.contains(noBtn)) return;
+
+  const r = noBtn.getBoundingClientRect();
+  const d = Math.hypot(
+    e.clientX - (r.left + r.width / 2),
+    e.clientY - (r.top + r.height / 2)
+  );
+
+  if (d < 100) {
+    if (Date.now() - lastNo < 400) return;
+    lastNo = Date.now();
+    noAudio.currentTime = 0;
+    noAudio.play().catch(()=>{});
+  }
+});
+
+/* Stop NO sound */
+function stopNo() {
+  noAudio.pause();
+  noAudio.currentTime = 0;
 }
 
-const yesBtn=document.getElementById("yesBtn");
-const noBtn=document.getElementById("noBtn");
+/* Runaway NO */
+noBtn.addEventListener("mouseover", () => {
+  const rect = noBtn.getBoundingClientRect();
+  noBtn.style.width = rect.width + "px";
+  noBtn.style.height = rect.height + "px";
 
-document.addEventListener("mousemove",(e)=>{
-    const nRect=noBtn.getBoundingClientRect();
-    const nDist=Math.hypot(
-        e.clientX-(nRect.left+nRect.width/2),
-        e.clientY-(nRect.top+nRect.height/2)
-    );
+  document.body.appendChild(noBtn);
+  noBtn.style.position = "fixed";
+  noBtn.style.zIndex = "9999";
 
-    if(nDist<100){
-        playNo();
-    }
+  const padding = 24;
+  const w = Math.max(50, window.innerWidth - rect.width - padding * 2);
+  const h = Math.max(50, window.innerHeight - rect.height - padding * 2);
+
+  noBtn.style.left = (padding + Math.random() * w) + "px";
+  noBtn.style.top  = (padding + Math.random() * h) + "px";
 });
 
-noBtn.addEventListener("mouseover",()=>{
-    const rect = noBtn.getBoundingClientRect();
-    noBtn.style.width = rect.width + "px";
-    noBtn.style.height = rect.height + "px";
+/* YES click */
+yesBtn.addEventListener("click", () => {
 
-    document.body.appendChild(noBtn);
-    noBtn.style.position="fixed";
-    noBtn.style.zIndex="9999";
+  unlockAudio();
 
-    const padding=24;
-    const w=window.innerWidth-rect.width-padding*2;
-    const h=window.innerHeight-rect.height-padding*2;
-    noBtn.style.left=(padding+Math.random()*w)+"px";
-    noBtn.style.top=(padding+Math.random()*h)+"px";
-});
+  // Stop heartbeat
+  heartbeatAudio.pause();
+  heartbeatAudio.currentTime = 0;
+  heartbeatAudio.loop = false;
 
-const yesAudio=new Audio('yes.mp3');
+  // Stop NO sound
+  stopNo();
 
-yesBtn.addEventListener("click",()=>{
-    heartbeatAudio.pause();
-    heartbeatAudio.currentTime = 0;
-    heartbeatAudio.loop = false;
+  // Remove NO button
+  if (noBtn) noBtn.remove();
 
-    stopNo();
+  // Create YES sound ONLY now
+  const yesAudio = new Audio('yes.mp3');
+  yesAudio.currentTime = 0;
+  yesAudio.play().catch(()=>{});
 
-    if(noBtn) noBtn.remove();
+  // Show love screen
+  mainCard.style.display = "none";
+  document.getElementById("loveScreen").style.display = "flex";
 
-    yesAudio.currentTime=0;
-    yesAudio.play();
-
-    mainCard.style.display="none";
-    document.getElementById("loveScreen").style.display="flex";
-
-    for(let i=0;i<120;i++){
-        const heart=document.createElement("div");
-        heart.innerHTML="💖";
-        heart.style.position="absolute";
-        heart.style.left=Math.random()*100+"vw";
-        heart.style.top=Math.random()*100+"vh";
-        heart.style.fontSize=(20+Math.random()*20)+"px";
-        heart.style.animation="floatUp 4s linear forwards";
-        document.body.appendChild(heart);
-        setTimeout(()=>heart.remove(),4000);
-    }
+  // Hearts animation
+  for (let i = 0; i < 90; i++) {
+    const heart = document.createElement("div");
+    heart.innerHTML = "💖";
+    heart.style.position = "absolute";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.top = Math.random() * 100 + "vh";
+    heart.style.fontSize = (18 + Math.random() * 18) + "px";
+    heart.style.animation = "floatUp 4s linear forwards";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 4000);
+  }
 });
 </script>
+
 
 </body>
 </html>
