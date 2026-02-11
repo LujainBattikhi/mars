@@ -22,14 +22,7 @@ body {
   text-align: center;
 }
 
-#youtubePlayer {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
+/* Main Card */
 .container {
   background: rgba(255,255,255,0.35);
   padding: 45px;
@@ -41,20 +34,6 @@ body {
   position: relative;
 }
 
-h1 { margin: 0 0 10px; font-size: 2.2rem; }
-
-.subtitle {
-  font-size: 0.95rem;
-  opacity: 0.85;
-  margin-bottom: 20px;
-}
-
-.question {
-  font-size: 1.15rem;
-  margin-bottom: 25px;
-  line-height: 1.4;
-}
-
 button {
   padding: 12px 28px;
   font-size: 16px;
@@ -62,15 +41,6 @@ button {
   border-radius: 50px;
   cursor: pointer;
   margin: 8px;
-}
-
-.buttons {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-height: 44px;
 }
 
 #yesBtn {
@@ -84,15 +54,9 @@ button {
   color: white;
   position: absolute;
   right: 0;
-
-  background: #ff4da6;
-  color: white;
-  position: absolute;
-  right: 0;
   transition: left 0.15s ease, top 0.15s ease;
 }
 
-/* YES screen */
 #loveScreen {
   position: fixed;
   inset: 0;
@@ -106,35 +70,6 @@ button {
   gap: 14px;
 }
 
-#loveScreen h2 {
-  margin: 0;
-  font-size: 2rem;
-}
-
-#loveScreen p {
-  margin: 0;
-  max-width: 520px;
-  line-height: 1.5;
-  opacity: 0.95;
-}
-
-/* Your image styling */
-.photoWrap {
-  width: min(72vw, 320px);
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.25);
-  border: 2px solid rgba(255,255,255,0.55);
-  background: rgba(255,255,255,0.12);
-}
-
-.photoWrap img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* Opening Screen */
 #openingScreen {
   position: fixed;
   inset: 0;
@@ -146,34 +81,28 @@ button {
   color: #c2185b;
   z-index: 1000;
   cursor: pointer;
-  padding: 18px;
-}
-
-#openingScreen h2 {
-  font-size: 2.5rem;
-  margin: 0 0 12px;
-}
-
-#openingScreen p {
-  margin: 0;
-  opacity: 0.9;
 }
 
 #mainCard { display: none; }
 
-@keyframes floatUp {
-  from { transform: translateY(100vh); opacity: 1; }
-  to { transform: translateY(-10vh); opacity: 0; }
+.photoWrap {
+  width: min(72vw, 320px);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+}
+.photoWrap img {
+  width: 100%;
 }
 </style>
 </head>
 
 <body>
-    <audio id="heartbeatAudio" src="heartbeat.mp3" loop></audio>
-    <audio id="noAudio" src="no.mp3"></audio>
-    <audio id="yesAudio" src="yes.mp3"></audio>
 
-<div id="youtubePlayer"></div>
+<!-- AUDIO (NO AUTOPLAY, NO PRELOAD) -->
+<audio id="heartbeatAudio" src="heartbeat.mp3" loop preload="none"></audio>
+<audio id="noAudio" src="no.mp3" preload="none"></audio>
+<audio id="yesAudio" src="yes.mp3" preload="none"></audio>
 
 <div id="openingScreen">
   <h2>Hi.. Mars 💗</h2>
@@ -182,12 +111,11 @@ button {
 
 <div class="container" id="mainCard">
   <h1>Mars 💕</h1>
-  <div class="question">
+  <div>
     You make things brighter without even trying.<br><br>
-        So… will you be my Valentine? 💖
+    So… will you be my Valentine? 💖
   </div>
-
-  <div class="buttons">
+  <div style="position:relative; margin-top:20px;">
     <button id="yesBtn">Yes 💖</button>
     <button id="noBtn">No 😢</button>
   </div>
@@ -195,155 +123,153 @@ button {
 
 <div id="loveScreen">
   <h2>💗 I love you 💗</h2>
-
-  <!-- ✅ Your uploaded photo appears here -->
   <div class="photoWrap">
-    <!-- IMPORTANT: Put IMG_7849.jpg in the same GitHub repo folder as index.html -->
     <img src="baby.jpg" alt="baby photo">
   </div>
-
-  <p>
-    I can’t wait for more Valentine’s together. 💞
-  </p>
+  <p>I can’t wait for more Valentine’s together. 💞</p>
 </div>
 
 <script>
-    const openingScreen = document.getElementById("openingScreen");
-    const mainCard = document.getElementById("mainCard");
-    const openingText = document.getElementById("openingText");
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn = document.getElementById("noBtn");
-    
-    const heartbeatAudio = document.getElementById("heartbeatAudio");
-    const noAudio = document.getElementById("noAudio");
-    const yesAudio = document.getElementById("yesAudio");
-    
-    let heartbeatStarted = false;
-    let noPlaying = false;
-    let noLocked = false;
-    
-    /* OPENING SCREEN */
-    openingScreen.addEventListener("click", () => {
-    
-      if (!heartbeatStarted) {
-        heartbeatAudio.currentTime = 0;
-        heartbeatAudio.play();
-        heartbeatStarted = true;
-        openingText.textContent = "Okay… one more click 💕";
-        return;
-      }
-    
-      openingScreen.style.display = "none";
-      mainCard.style.display = "block";
-    });
-    
-    /* PROXIMITY SOUND */
-    function checkProximity(x, y) {
-    
-      if (!document.body.contains(noBtn)) return;
-    
-      const noRect = noBtn.getBoundingClientRect();
-      const yesRect = yesBtn.getBoundingClientRect();
-    
-      const noDistance = Math.hypot(
-        x - (noRect.left + noRect.width / 2),
-        y - (noRect.top + noRect.height / 2)
-      );
-    
-      const yesDistance = Math.hypot(
-        x - (yesRect.left + yesRect.width / 2),
-        y - (yesRect.top + yesRect.height / 2)
-      );
-    
-      if (yesDistance < noDistance) {
-        if (noPlaying) {
-          noAudio.pause();
-          noAudio.currentTime = 0;
-          noPlaying = false;
-        }
-        return;
-      }
-    
-      if (noDistance < 100) {
-        if (!noPlaying) {
-          noAudio.currentTime = 0;
-          noAudio.play();
-          noPlaying = true;
-        }
-      } else {
-        if (noPlaying) {
-          noAudio.pause();
-          noAudio.currentTime = 0;
-          noPlaying = false;
-        }
-      }
+const openingScreen = document.getElementById("openingScreen");
+const mainCard = document.getElementById("mainCard");
+const openingText = document.getElementById("openingText");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+
+const heartbeat = document.getElementById("heartbeatAudio");
+const noSound = document.getElementById("noAudio");
+const yesSound = document.getElementById("yesAudio");
+
+let heartbeatStarted = false;
+let noPlaying = false;
+let noLocked = false;
+
+/* STOP ALL AUDIO ON LOAD */
+window.addEventListener("load", () => {
+  heartbeat.pause();
+  noSound.pause();
+  yesSound.pause();
+});
+
+/* OPENING SCREEN */
+openingScreen.addEventListener("click", () => {
+
+  if (!heartbeatStarted) {
+    heartbeat.currentTime = 0;
+    heartbeat.play().catch(()=>{});
+    heartbeatStarted = true;
+    openingText.textContent = "Okay… one more click 💕";
+    return;
+  }
+
+  openingScreen.style.display = "none";
+  mainCard.style.display = "block";
+});
+
+/* PROXIMITY */
+function checkProximity(x, y) {
+
+  if (!document.body.contains(noBtn)) return;
+
+  const noRect = noBtn.getBoundingClientRect();
+  const yesRect = yesBtn.getBoundingClientRect();
+
+  const noDist = Math.hypot(
+    x - (noRect.left + noRect.width/2),
+    y - (noRect.top + noRect.height/2)
+  );
+
+  const yesDist = Math.hypot(
+    x - (yesRect.left + yesRect.width/2),
+    y - (yesRect.top + yesRect.height/2)
+  );
+
+  if (yesDist < noDist) {
+    if (noPlaying) {
+      noSound.pause();
+      noSound.currentTime = 0;
+      noPlaying = false;
     }
-    
-    document.addEventListener("mousemove", (e) => {
-      checkProximity(e.clientX, e.clientY);
-    });
-    
-    document.addEventListener("touchmove", (e) => {
-      const touch = e.touches[0];
-      checkProximity(touch.clientX, touch.clientY);
-    });
-    
-    /* MOVE NO BUTTON */
-    function moveNo() {
-    
-      const container = document.getElementById("mainCard");
-      const containerRect = container.getBoundingClientRect();
-    
-      if (!noLocked) {
-        const rect = noBtn.getBoundingClientRect();
-        noBtn.style.width = rect.width + "px";
-        noBtn.style.height = rect.height + "px";
-        noLocked = true;
-      }
-    
-      noBtn.style.position = "absolute";
-      noBtn.style.right = "auto";
-    
-      const rect = noBtn.getBoundingClientRect();
-    
-      const maxX = containerRect.width - rect.width - 10;
-      const maxY = containerRect.height - rect.height - 10;
-    
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
-    
-      noBtn.style.left = x + "px";
-      noBtn.style.top  = y + "px";
+    return;
+  }
+
+  if (noDist < 100) {
+    if (!noPlaying) {
+      noSound.currentTime = 0;
+      noSound.play().catch(()=>{});
+      noPlaying = true;
     }
-    
-    noBtn.addEventListener("mouseover", moveNo);
-    noBtn.addEventListener("touchstart", moveNo);
-    
-    /* YES CLICK */
-    yesBtn.addEventListener("click", () => {
-    
-      heartbeatAudio.pause();
-      heartbeatAudio.currentTime = 0;
-    
-      if (noPlaying) {
-        noAudio.pause();
-        noAudio.currentTime = 0;
-        noPlaying = false;
-      }
-    
-      if (noBtn) noBtn.remove();
-    
-      yesAudio.currentTime = 0;
-      yesAudio.play();
-    
-      mainCard.style.display = "none";
-      document.getElementById("loveScreen").style.display = "flex";
-    });
-    </script>
-    
+  } else {
+    if (noPlaying) {
+      noSound.pause();
+      noSound.currentTime = 0;
+      noPlaying = false;
+    }
+  }
+}
 
+document.addEventListener("mousemove", e => {
+  checkProximity(e.clientX, e.clientY);
+});
 
+document.addEventListener("touchmove", e => {
+  const t = e.touches[0];
+  checkProximity(t.clientX, t.clientY);
+});
 
+/* MOVE NO BUTTON */
+function moveNo() {
+
+const container = document.getElementById("mainCard");
+const containerRect = container.getBoundingClientRect();
+
+if (!noLocked) {
+  const rect = noBtn.getBoundingClientRect();
+  noBtn.style.width = rect.width + "px";
+  noBtn.style.height = rect.height + "px";
+  noLocked = true;
+}
+
+noBtn.style.position = "absolute";
+noBtn.style.right = "auto";   // IMPORTANT
+noBtn.style.zIndex = "5";
+
+const rect = noBtn.getBoundingClientRect();
+
+const maxX = container.clientWidth - rect.width - 10;
+const maxY = container.clientHeight - rect.height - 10;
+
+const x = Math.random() * maxX;
+const y = Math.random() * maxY;
+
+noBtn.style.left = x + "px";
+noBtn.style.top  = y + "px";
+}
+
+noBtn.addEventListener("mouseover", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
+
+/* YES CLICK */
+yesBtn.addEventListener("click", () => {
+
+  heartbeat.pause();
+  heartbeat.currentTime = 0;
+
+  if (noPlaying) {
+    noSound.pause();
+    noSound.currentTime = 0;
+    noPlaying = false;
+  }
+
+  if (noBtn) noBtn.remove();
+
+  yesSound.currentTime = 0;
+  yesSound.play().catch(()=>{});
+
+  mainCard.style.display = "none";
+  document.getElementById("loveScreen").style.display = "flex";
+});
+</script>
 
 </body>
 </html>
