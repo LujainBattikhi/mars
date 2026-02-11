@@ -84,6 +84,12 @@ button {
   color: white;
   position: absolute;
   right: 0;
+
+  background: #ff4da6;
+  color: white;
+  position: absolute;
+  right: 0;
+  transition: left 0.15s ease, top 0.15s ease;
 }
 
 /* YES screen */
@@ -205,7 +211,6 @@ let player;
 let musicStarted = false;
 let audioUnlocked = false;
 
-/* YouTube */
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('youtubePlayer', {
     height: '0',
@@ -232,18 +237,22 @@ heartbeatAudio.loop = true;
 const noAudio = new Audio('no.mp3');
 
 let heartbeatStarted = false;
-let lastNo = 0;
+let lastNoPlay = 0;
 
 /* Unlock audio safely */
 function unlockAudio() {
   if (!audioUnlocked) {
-    const temp = new Audio();
-    temp.play().catch(()=>{});
+    const temp = new Audio('yes.mp3');
+    temp.volume = 0;
+    temp.play().then(() => {
+      temp.pause();
+      temp.currentTime = 0;
+    }).catch(()=>{});
     audioUnlocked = true;
   }
 }
 
-/* Opening click */
+/* Opening Screen */
 openingScreen.addEventListener("click", () => {
 
   unlockAudio();
@@ -264,49 +273,88 @@ openingScreen.addEventListener("click", () => {
   }
 });
 
-/* NO sound proximity */
-document.addEventListener("mousemove", (e) => {
+/* PROXIMITY LOGIC */
+function checkProximity(x, y) {
+
   if (!document.body.contains(noBtn)) return;
 
-  const r = noBtn.getBoundingClientRect();
-  const d = Math.hypot(
-    e.clientX - (r.left + r.width / 2),
-    e.clientY - (r.top + r.height / 2)
+  const noRect = noBtn.getBoundingClientRect();
+  const yesRect = yesBtn.getBoundingClientRect();
+
+  const noDistance = Math.hypot(
+    x - (noRect.left + noRect.width / 2),
+    y - (noRect.top + noRect.height / 2)
   );
 
-  if (d < 100) {
-    if (Date.now() - lastNo < 400) return;
-    lastNo = Date.now();
+  const yesDistance = Math.hypot(
+    x - (yesRect.left + yesRect.width / 2),
+    y - (yesRect.top + yesRect.height / 2)
+  );
+
+  // If closer to YES than NO → stop NO sound
+  if (yesDistance < noDistance) {
+    noAudio.pause();
+    noAudio.currentTime = 0;
+    return;
+  }
+
+  // If near NO → play sound
+  if (noDistance < 100) {
+    if (Date.now() - lastNoPlay < 400) return;
+    lastNoPlay = Date.now();
     noAudio.currentTime = 0;
     noAudio.play().catch(()=>{});
+  } else {
+    noAudio.pause();
+    noAudio.currentTime = 0;
   }
-});
-
-/* Stop NO sound */
-function stopNo() {
-  noAudio.pause();
-  noAudio.currentTime = 0;
 }
 
-/* Runaway NO */
-noBtn.addEventListener("mouseover", () => {
-  const rect = noBtn.getBoundingClientRect();
-  noBtn.style.width = rect.width + "px";
-  noBtn.style.height = rect.height + "px";
-
-  document.body.appendChild(noBtn);
-  noBtn.style.position = "fixed";
-  noBtn.style.zIndex = "9999";
-
-  const padding = 24;
-  const w = Math.max(50, window.innerWidth - rect.width - padding * 2);
-  const h = Math.max(50, window.innerHeight - rect.height - padding * 2);
-
-  noBtn.style.left = (padding + Math.random() * w) + "px";
-  noBtn.style.top  = (padding + Math.random() * h) + "px";
+/* Desktop */
+document.addEventListener("mousemove", (e) => {
+  checkProximity(e.clientX, e.clientY);
 });
 
-/* YES click */
+/* Mobile */
+document.addEventListener("touchmove", (e) => {
+  const touch = e.touches[0];
+  checkProximity(touch.clientX, touch.clientY);
+});
+let noLockedSize = false;
+
+function moveNo() {
+
+  // Lock size ONCE so it never changes
+  if (!noLockedSize) {
+    const rect = noBtn.getBoundingClientRect();
+    noBtn.style.width = rect.width + "px";
+    noBtn.style.height = rect.height + "px";
+    noLockedSize = true;
+  }
+
+  const rect = noBtn.getBoundingClientRect();
+
+  noBtn.style.position = "absolute";
+
+  const container = document.getElementById("mainCard");
+  const containerRect = container.getBoundingClientRect();
+
+  const padding = 10;
+
+  const maxX = containerRect.width - rect.width - padding;
+  const maxY = containerRect.height - rect.height - padding;
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
+
+  noBtn.style.left = x + "px";
+  noBtn.style.top  = y + "px";
+}
+
+noBtn.addEventListener("mouseover", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
+
+/* YES CLICK */
 yesBtn.addEventListener("click", () => {
 
   unlockAudio();
@@ -314,17 +362,16 @@ yesBtn.addEventListener("click", () => {
   // Stop heartbeat
   heartbeatAudio.pause();
   heartbeatAudio.currentTime = 0;
-  heartbeatAudio.loop = false;
 
   // Stop NO sound
-  stopNo();
+  noAudio.pause();
+  noAudio.currentTime = 0;
 
   // Remove NO button
   if (noBtn) noBtn.remove();
 
-  // Create YES sound ONLY now
+  // Play YES sound
   const yesAudio = new Audio('yes.mp3');
-  yesAudio.currentTime = 0;
   yesAudio.play().catch(()=>{});
 
   // Show love screen
@@ -345,6 +392,7 @@ yesBtn.addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 </body>
